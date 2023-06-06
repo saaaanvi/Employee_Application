@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.service.IemployeeService;
+import com.example.demo.model.employeeModel;
 import com.example.demo.service_3b.tables.pojos.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,26 +21,25 @@ public class employeeController {
  private IemployeeService service;
 
  @PostMapping
- public String addEmployee(@RequestBody Employee employee){
+ public String addEmployee(@RequestBody employeeModel employee){
   service.insertEmployee(employee);
   return "Employee added";
  }
 
-
  @GetMapping
- public List<com.example.demo.service_3b.tables.pojos.Employee> getEmployees(){
+ public List<employeeModel> getEmployees(){
   return service.getAllEmployees();
  }
 
  @PutMapping("{id}")
- public String updateEmployee(@PathVariable int id,
-   @RequestBody com.example.demo.service_3b.tables.pojos.Employee employee) {
+ public String updateEmployee(@PathVariable String id,
+   @RequestBody employeeModel employee) {
   service.updateEmployee(employee, id);
   return "Profile updated";
  }
 
  @DeleteMapping("{id}")
- public String deleteUser(@PathVariable int id) {
+ public String deleteUser(@PathVariable String id) {
   service.deleteEmployee(id);
   return "Profile deleted";
  }
