@@ -10,6 +10,7 @@ public interface IEmployeeRepository {
  public List<Employee> getAllEmployees();
  public void updateEmployee(Employee employee, String id);
  public void deleteEmployee(String id);
+ public Employee getEmployeeById(String id);
 
 
 

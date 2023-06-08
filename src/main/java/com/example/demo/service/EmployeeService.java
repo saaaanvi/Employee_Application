@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.exception.RecordsNotFoundException;
 import com.example.demo.model.AddressModel;
 import com.example.demo.model.EmployeeModel;
 import com.example.demo.repository.EmployeeRepository;
@@ -34,27 +35,62 @@ public class EmployeeService implements IEmployeeService {
 
  public List<EmployeeModel> getAllEmployees() {
   List<Employee> employees = empRep.getAllEmployees();
+  if (employees.isEmpty()) {
+   throw new RecordsNotFoundException("No employees found in the database.");
+  }
+
   List<EmployeeModel> employeeModels = new ArrayList<>();
   for (Employee employee : employees) {
    EmployeeModel employeeModel = new EmployeeModel();
    BeanUtils.copyProperties(employee, employeeModel);
 
    AddressModel addressModel = addService.getAddressByEmployeeId(employee.getId());
-   employeeModel.setAddressModel(addressModel);
+   if (addressModel == null) {
+    throw new RecordsNotFoundException("Address not found for employeeId: " + employee.getId());
+   }
 
+   employeeModel.setAddressModel(addressModel);
    employeeModels.add(employeeModel);
   }
   return employeeModels;
  }
 
  public void updateEmployee(EmployeeModel employeeModel, String id) {
-  Employee employee = new Employee();
-  BeanUtils.copyProperties(employeeModel, employee);
-  empRep.updateEmployee(employee, id);
+  Employee existingEmployee = empRep.getEmployeeById(id);
+  if (existingEmployee == null) {
+   throw new RecordsNotFoundException("Employee not found for id: " + id);
+  }
+
+  Employee updatedEmployee = new Employee();
+  BeanUtils.copyProperties(employeeModel, updatedEmployee);
+  empRep.updateEmployee(updatedEmployee, id);
  }
 
  public void deleteEmployee(String id) {
+  Employee existingEmployee = empRep.getEmployeeById(id);
+  if (existingEmployee == null) {
+   throw new RecordsNotFoundException("Employee not found for id: " + id);
+  }
+
   addService.deleteAddress(id);
   empRep.deleteEmployee(id);
+ }
+
+ public EmployeeModel getEmployeeById(String id) {
+  Employee employee = empRep.getEmployeeById(id);
+  if (employee == null) {
+   throw new RecordsNotFoundException("Employee not found for id: " + id);
+  }
+
+  EmployeeModel employeeModel = new EmployeeModel();
+  BeanUtils.copyProperties(employee, employeeModel);
+
+  AddressModel addressModel = addService.getAddressByEmployeeId(employee.getId());
+  if (addressModel == null) {
+   throw new RecordsNotFoundException("Address not found for employeeId: " + employee.getId());
+  }
+
+  employeeModel.setAddressModel(addressModel);
+  return employeeModel;
  }
 }

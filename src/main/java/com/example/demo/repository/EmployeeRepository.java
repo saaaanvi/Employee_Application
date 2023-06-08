@@ -50,4 +50,11 @@ public class EmployeeRepository implements IEmployeeRepository {
      .execute();
   }
 
+
+ public Employee getEmployeeById(String id) {
+  return dslContext.selectFrom(Tables.EMPLOYEE)
+    .where(Tables.EMPLOYEE.ID.eq(id))
+    .fetchOneInto(Employee.class);
+ }
+
 }

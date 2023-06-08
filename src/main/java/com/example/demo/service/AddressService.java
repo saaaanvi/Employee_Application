@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.exception.RecordsNotFoundException;
 import com.example.demo.model.AddressModel;
 import com.example.demo.repository.AddressRepository;
 import com.example.demo.service_3b.tables.pojos.Address;
@@ -24,28 +25,30 @@ public class AddressService implements IAddressService {
  @Override
  public void updateAddress(AddressModel addressModel, String employeeId) {
   Address address = addressRepository.getAddressByEmployeeId(employeeId);
-  if (address != null) {
-   BeanUtils.copyProperties(addressModel, address);
-   addressRepository.updateAddress(address);
+  if (address == null) {
+   throw new RecordsNotFoundException("Address not found for employeeId: " + employeeId);
   }
+  BeanUtils.copyProperties(addressModel, address);
+  addressRepository.updateAddress(address);
  }
 
  @Override
  public void deleteAddress(String employeeId) {
   Address address = addressRepository.getAddressByEmployeeId(employeeId);
-  if (address != null) {
-   addressRepository.deleteAddress(address);
+  if (address == null) {
+   throw new RecordsNotFoundException("Address not found for employeeId: " + employeeId);
   }
+  addressRepository.deleteAddress(address);
  }
 
  @Override
  public AddressModel getAddressByEmployeeId(String employeeId) {
   Address address = addressRepository.getAddressByEmployeeId(employeeId);
-  if (address != null) {
-   AddressModel addressModel = new AddressModel();
-   BeanUtils.copyProperties(address, addressModel);
-   return addressModel;
+  if (address == null) {
+   throw new RecordsNotFoundException("Address not found for employeeId: " + employeeId);
   }
-  return null;
+  AddressModel addressModel = new AddressModel();
+  BeanUtils.copyProperties(address, addressModel);
+  return addressModel;
  }
 }
